@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 export default function ResumeForm() {
   const [selected, setSelected] = useState("");
@@ -15,33 +15,30 @@ export default function ResumeForm() {
   // Skills //
   const [skills, setSkills] = useState("");
   // Experience //
-  const [experience, setExperience] = useState([
-    {
-      role: "",
-      company: "",
-      from: "",
-      to: "",
-      description: "",
-    },
-  ]);
+  const [experience, setExperience] = useState([]);
+  const [tempExperience, setTempExperience] = useState({
+    role: "",
+    company: "",
+    from: "",
+    to: "",
+    description: "",
+  });
   // Education //
-  const [education, setEducation] = useState([
-    {
-      degree: "",
-      university: "",
-      eduFromDate: "",
-      eduToDate: "",
-    },
-  ]);
+  const [education, setEducation] = useState([]);
+  const [tempEducation, setTempEducation] = useState({
+    degree: "",
+    university: "",
+    from: "",
+    to: "",
+  });
   // Projects //
-  const [projects, setProjects] = useState([
-    {
-      title: "",
-      description: "",
-      techStack: "",
-      link: "",
-    },
-  ]);
+  const [project, setProject] = useState([]);
+  const [tempProject, setTempProject] = useState({
+    title: "",
+    description: "",
+    techStack: "",
+    link: "",
+  });
 
   const handleDropDownChange = (e) => {
     setSelected(e.target.value);
@@ -63,59 +60,74 @@ export default function ResumeForm() {
     setSkills(e.target.value);
   };
 
-const handleExperienceChange = (e, index) => {
-  const { name, value } = e.target;
-  const updatedExperience = [...experience];
-  updatedExperience[index] = {
-    ...updatedExperience[index],
-    [name]: value,
+  const handleExperienceChange = (e) => {
+    const { name, value } = e.target;
+    setTempExperience((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
-  setExperience(updatedExperience);
-};
 
+  const addExperience = () => {
+    setExperience((prev) => [...prev, tempExperience]);
 
-  const addExperience = (e) => {
-    e.preventDefault()
-  setExperience((prev) => [
-    ...prev,
-    {
+    setTempExperience({
       role: "",
       company: "",
       from: "",
       to: "",
       description: "",
-    },
-  ]);
-};
-
-const removeExperience = (index) => {
-  setExperience((prev) => prev.filter((_, i) => i !== index));
-};
-
-  const handleEducationChange = (e, index) => {
-    const { name, value } = e.target;
-
-    setEducation((prevEducation) => {
-      const updated = [...prevEducation];
-      updated[index] = {
-        ...updated[index],
-        [name]: value,
-      };
-      return updated;
     });
   };
 
-  const handleProjectsChange = (e, index) => {
-    const { name, value } = e.target;
+  const removeExperience = () => {
+    setExperience((prev) => prev.slice(0, -1));
+  };
 
-    setProjects((prevProjects) => {
-      const updated = [...prevProjects];
-      updated[index] = {
-        ...updated[index],
-        [name]: value,
-      };
-      return updated;
+  const handleEducationChange = (e) => {
+    const { name, value } = e.target;
+    setTempEducation((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const addEducation = () => {
+    setEducation((prev) => [...prev, tempEducation]);
+
+    setTempEducation({
+      degree: "",
+      university: "",
+      from: "",
+      to: "",
     });
+  };
+
+  const removeEducation = () => {
+    setEducation((prev) => prev.slice(0, -1));
+  };
+
+  const handleProjectsChange = (e) => {
+    const { name, value } = e.target;
+    setTempProject((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const addProject = () => {
+    setProject((prev) => [...prev, tempProject]);
+
+    setTempProject({
+      title: "",
+      description: "",
+      techStack: "",
+      link: "",
+    });
+  };
+
+  const removeProject = () => {
+    setProject((prev) => prev.slice(0, -1));
   };
 
   const handleFormSubmit = (e) => {
@@ -127,7 +139,7 @@ const removeExperience = (index) => {
       skills,
       experience,
       education,
-      projects,
+      project,
     };
 
     console.log("formData ", formData);
@@ -135,290 +147,216 @@ const removeExperience = (index) => {
   };
 
   return (
-    <div>
-      <div>
-        <label htmlFor="role">Select your Resume Template: </label>
-        <select id="role" value={selected} onChange={handleDropDownChange}>
+    <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg space-y-6">
+      {/* Template Selector */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+        <label htmlFor="role" className="font-semibold text-gray-700">
+          Select your Resume Template:
+        </label>
+        <select
+          id="role"
+          value={selected}
+          onChange={handleDropDownChange}
+          className="border rounded p-2"
+        >
           <option value="">-- Choose --</option>
           <option value="basic">Basic</option>
           <option value="modern">Modern</option>
         </select>
       </div>
 
-      <div>
-        <form onSubmit={handleFormSubmit}>
-          {/* Personal Info */}
-
-          <div>
-            <h2> Personal Information </h2>
-
-            <div>
-              <label>Full Name</label>
-              <input
-                type="text"
-                name="fullName"
-                value={personalInfo.fullName}
-                onChange={handlePersonalInfoChange}
-                required
-              />
-            </div>
-
-            <div>
-              <label>Email</label>
-              <input
-                type="text"
-                name="email"
-                value={personalInfo.email}
-                onChange={handlePersonalInfoChange}
-                required
-              />
-            </div>
-
-            <div>
-              <label>Phone</label>
-              <input
-                type="text"
-                name="phone"
-                value={personalInfo.phone}
-                onChange={handlePersonalInfoChange}
-                required
-              />
-            </div>
-
-            <div>
-              <label>Location</label>
-              <input
-                type="text"
-                name="location"
-                value={personalInfo.location}
-                onChange={handlePersonalInfoChange}
-                required
-              />
-            </div>
-
-            <div>
-              <label>Job Title</label>
-              <input
-                type="text"
-                name="jobTitle"
-                value={personalInfo.jobTitle}
-                onChange={handlePersonalInfoChange}
-                required
-              />
-            </div>
+      <form onSubmit={handleFormSubmit} className="space-y-6">
+        {/* Personal Information */}
+        <div>
+          <h2 className="text-xl font-bold text-blue-800 mb-4">
+            Personal Information
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {["fullName", "email", "phone", "location", "jobTitle"].map(
+              (field) => (
+                <div key={field}>
+                  <label className="block font-medium text-gray-700 capitalize">
+                    {field.replace(/([A-Z])/g, " $1")}
+                  </label>
+                  <input
+                    type="text"
+                    name={field}
+                    value={personalInfo[field]}
+                    onChange={handlePersonalInfoChange}
+                    required
+                    className="w-full p-2 border rounded"
+                  />
+                </div>
+              )
+            )}
           </div>
-
-          {/* Summary */}
-
-          {selected == "modern" && (
-            <div>
-              <h2> Summary </h2>
-
-              <div>
-                <label>Summary</label>
+        </div>
+        {/* Summary */}
+        {selected === "modern" && (
+          <div>
+            <h2 className="text-xl font-bold text-blue-800 mb-2">Summary</h2>
+            <textarea
+              name="summary"
+              value={summary}
+              onChange={handleSummaryChange}
+              required
+              className="w-full p-3 border rounded"
+              placeholder="Write a short professional summary"
+            />
+          </div>
+        )}
+        {/* Skills */}
+        <div>
+          <h2 className="text-xl font-bold text-blue-800 mb-2">Skills</h2>
+          <input
+            type="text"
+            name="skills"
+            value={skills}
+            onChange={handleSkillsChange}
+            required
+            className="w-full p-2 border rounded"
+            placeholder="e.g., React, Node.js, SQL"
+          />
+        </div>
+        {/* Experience */}
+        <div>
+          <h2 className="text-xl font-bold text-blue-800 mb-4">Experience</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {["role", "company", "from", "to"].map((field) => (
+              <div key={field}>
+                <label className="block font-medium text-gray-700 capitalize">
+                  {field}
+                </label>
                 <input
                   type="text"
-                  name="summary"
-                  value={summary}
-                  onChange={handleSummaryChange}
-                  required
+                  name={field}
+                  value={tempExperience[field]}
+                  onChange={handleExperienceChange}
+                  className="w-full p-2 border rounded"
                 />
               </div>
-            </div>
-          )}
-
-          {/* Skills */}
-
-          <div>
-            <h2> Skills </h2>
-
-            <div>
-              <label>Skills</label>
-              <input
-                type="text"
-                name="skills"
-                value={skills}
-                onChange={handleSkillsChange}
-                required
-              />
-            </div>
+            ))}
           </div>
 
-          {/* Experience */}
-
-          <div>
-            <div>
-            <h2> Experience </h2>
-
-            <div>
-              <label>Role</label>
-              <input
-                type="text"
-                name="role"
-                value={experience.role}
-                onChange={(e, index) => handleExperienceChange(e, index)}
-                required
-              />
-            </div>
-
-            <div>
-              <label>Company</label>
-              <input
-                type="text"
-                name="company"
-                value={experience.company}
-                onChange={(e, index) => handleExperienceChange(e, index)}
-                required
-              />
-            </div>
-
-            <div>
-              <label>From</label>
-              <input
-                type="text"
-                name="from"
-                value={experience.from}
-                onChange={(e, index) => handleExperienceChange(e, index)}
-                required
-              />
-            </div>
-
-            <div>
-              <label>To</label>
-              <input
-                type="text"
-                name="to"
-                value={experience.to}
-                onChange={(e, index) => handleExperienceChange(e, index)}
-                required
-              />
-            </div>
-
-            <div>
-              <label>Description</label>
+          {selected === "modern" && (
+            <div className="mt-2">
+              <label className="block font-medium text-gray-700">
+                Description
+              </label>
               <textarea
                 name="description"
-                value={experience.description}
-                onChange={(e, index) => handleExperienceChange(e, index)}
-                required
+                value={tempExperience.description}
+                onChange={handleExperienceChange}
+                className="w-full p-3 border rounded"
               />
             </div>
-
-              <button type="button" onClick={() => removeExperience(index)} > Remove Experience</button>
-
-            </div>
-
-          <button  type="button"  onClick={addExperience}> Add Experience </button>
-
-          </div>
-
-          {/* Education */}
-
-          <div>
-            <h2> Education </h2>
-
-            <div>
-              <label>Degree</label>
-              <input
-                type="text"
-                name="degree"
-                value={education.degree}
-                onChange={(e, index) => handleEducationChange(e, index)}
-                required
-              />
-            </div>
-
-            <div>
-              <label>University</label>
-              <input
-                type="text"
-                name="university"
-                value={education.university}
-                onChange={(e, index) => handleEducationChange(e, index)}
-                required
-              />
-            </div>
-
-            <div>
-              <label>From</label>
-              <input
-                type="text"
-                name="eduFromDate"
-                value={education.eduFromDate}
-                onChange={(e, index) => handleEducationChange(e, index)}
-                required
-              />
-            </div>
-
-            <div>
-              <label>To</label>
-              <input
-                type="text"
-                name="eduToDate"
-                value={experience.eduToDate}
-                onChange={(e, index) => handleEducationChange(e, index)}
-                required
-              />
-            </div>
-          </div>
-
-          {/* Projects */}
-
-        {selected=="modern" && (
-          <div>
-            <h2> Projects </h2>
-
-            <div>
-              <label>Title</label>
-              <input
-                type="text"
-                name="title"
-                value={projects.title}
-                onChange={(e, index) => handleProjectsChange(e, index)}
-                required
-              />
-            </div>
-
-            <div>
-              <label>Description</label>
-              <input
-                type="text"
-                name="description"
-                value={projects.description}
-                onChange={(e, index) => handleProjectsChange(e, index)}
-                required
-              />
-            </div>
-
-            <div>
-              <label>Tech Stack</label>
-              <input
-                type="text"
-                name="techStack"
-                value={projects.techStack}
-                onChange={(e, index) => handleProjectsChange(e, index)}
-                required
-              />
-            </div>
-
-            <div>
-              <label>Link</label>
-              <input
-                type="text"
-                name="link"
-                value={projects.link}
-                onChange={(e, index) => handleProjectsChange(e, index)}
-                required
-              />
-            </div>
-          </div>
           )}
 
-          <div>
-            <button type="submit">Preview</button>
+          <div className="flex items-center justify-between mt-6">
+            <button
+              type="button"
+              onClick={addExperience}
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-md transition duration-200"
+            >
+              ➕ Add Experience
+            </button>
+
+            <button
+              type="button"
+              onClick={removeExperience}
+              className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-md transition duration-200"
+              disabled={experience.length === 0}
+            >
+              🗑️ Remove Experience
+            </button>
           </div>
-        </form>
-      </div>
+        </div>
+        {/* Education */}
+        <div>
+          <h2 className="text-xl font-bold text-blue-800 mb-4">Education</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {["degree", "university", "from", "to"].map((field) => (
+              <div key={field}>
+                <label className="block font-medium text-gray-700 capitalize">
+                  {field.replace(/([A-Z])/g, " $1")}
+                </label>
+                <input
+                  type="text"
+                  name={field}
+                  value={tempEducation[field]}
+                  onChange={handleEducationChange}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className="flex items-center justify-between mt-6">
+            <button
+              type="button"
+              onClick={addEducation}
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-md transition duration-200"
+            >
+              ➕ Add Education
+            </button>
+
+            <button
+              type="button"
+              onClick={removeEducation}
+              className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-md transition duration-200"
+            >
+              🗑️ Remove Education
+            </button>
+          </div>
+        </div>
+        -{/* Projects */}
+        {selected === "modern" && (
+          <div>
+            <h2 className="text-xl font-bold text-blue-800 mb-4">Projects</h2>
+            {["title", "description", "techStack", "link"].map((field) => (
+              <div key={field} className="mb-3">
+                <label className="block font-medium text-gray-700 capitalize">
+                  {field}
+                </label>
+                <input
+                  type="text"
+                  name={field}
+                  value={tempProject[field]}
+                  onChange={handleProjectsChange}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+            ))}
+
+            <div className="flex items-center justify-between mt-6">
+              <button
+                type="button"
+                onClick={addProject}
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-md transition duration-200"
+              >
+                ➕ Add Project
+              </button>
+
+              <button
+                type="button"
+                onClick={removeProject}
+                className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-md transition duration-200"
+              >
+                🗑️ Remove Project
+              </button>
+            </div>
+          </div>
+        )}
+        {/* Preview */}
+        <div className="text-center">
+          <button
+            type="submit"
+            className="px-6 py-2 bg-blue-700 text-white rounded hover:bg-blue-800"
+          >
+            Preview
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
