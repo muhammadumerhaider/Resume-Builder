@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function ResumeForm() {
   const [selected, setSelected] = useState("");
@@ -39,6 +40,8 @@ export default function ResumeForm() {
     techStack: "",
     link: "",
   });
+
+  const navigate = useNavigate();
 
   const handleDropDownChange = (e) => {
     setSelected(e.target.value);
@@ -142,8 +145,17 @@ export default function ResumeForm() {
       project,
     };
 
-    console.log("formData ", formData);
-    return formData;
+    navigate("/preview", {
+      state: {
+        selected,
+        personalInfo,
+        summary,
+        skills,
+        experience,
+        education,
+        project,
+      },
+    });
   };
 
   return (
@@ -178,11 +190,31 @@ export default function ResumeForm() {
                   <label className="block font-medium text-gray-700 capitalize">
                     {field.replace(/([A-Z])/g, " $1")}
                   </label>
+
                   <input
                     type="text"
                     name={field}
                     value={personalInfo[field]}
-                    onChange={handlePersonalInfoChange}
+                    onChange={(e) => {
+                      let value = e.target.value;
+
+                      if (field === "phone") {
+                        // Only digits allowed
+                        value = value.replace(/\D/g, "").slice(0, 11);
+                      } else if (
+                        ["fullName", "location", "jobTitle"].includes(field)
+                      ) {
+                        // Only letters and spaces
+                        value = value.replace(/[^a-zA-Z\s]/g, "");
+                      }
+
+                      handlePersonalInfoChange({
+                        target: {
+                          name: field,
+                          value,
+                        },
+                      });
+                    }}
                     required
                     className="w-full p-2 border rounded"
                   />
@@ -231,7 +263,21 @@ export default function ResumeForm() {
                   type="text"
                   name={field}
                   value={tempExperience[field]}
-                  onChange={handleExperienceChange}
+                  onChange={(e) => {
+                    let value = e.target.value;
+
+                    if (field === "role") {
+                      value = value.replace(/[^a-zA-Z\s]/g, ""); // Only letters and spaces
+                      handleExperienceChange({
+                        target: {
+                          name: field,
+                          value,
+                        },
+                      });
+                    } else {
+                      handleExperienceChange(e);
+                    }
+                  }}
                   className="w-full p-2 border rounded"
                 />
               </div>
@@ -284,8 +330,40 @@ export default function ResumeForm() {
                   type="text"
                   name={field}
                   value={tempEducation[field]}
-                  onChange={handleEducationChange}
+                  onChange={(e) => {
+                    let value = e.target.value;
+
+                    if (["from", "to"].includes(field)) {
+                      // Allow only numbers, max 4 digits
+                      if (/^\d{0,4}$/.test(value)) {
+                        handleEducationChange({
+                          target: {
+                            name: field,
+                            value,
+                          },
+                        });
+                      }
+                    } else if (["degree", "university"].includes(field)) {
+                      // Allow only letters and spaces
+                      value = value.replace(/[^a-zA-Z\s]/g, "");
+                      handleEducationChange({
+                        target: {
+                          name: field,
+                          value,
+                        },
+                      });
+                    } else {
+                      handleEducationChange(e);
+                    }
+                  }}
                   className="w-full p-2 border rounded"
+                  inputMode={
+                    ["from", "to"].includes(field) ? "numeric" : undefined
+                  }
+                  maxLength={["from", "to"].includes(field) ? 4 : undefined}
+                  placeholder={
+                    ["from", "to"].includes(field) ? "e.g. 2023" : ""
+                  }
                 />
               </div>
             ))}
