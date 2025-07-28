@@ -43,8 +43,41 @@ export default function ResumeForm() {
 
   const navigate = useNavigate();
 
+  let addExpBtnClicked = false;
+
   const handleDropDownChange = (e) => {
     setSelected(e.target.value);
+    if(e.target.value!=undefined){
+      setPersonalInfo ({
+        fullName: "",
+        email: "",
+        phone: "",
+        location: "",
+        jobTitle: "",
+      });
+      setSummary("");
+      setSkills("");
+      setTempExperience({
+        role: "",
+        company: "",
+        from: "",
+        to: "",
+        description: "",
+      });
+      setTempEducation({
+        degree: "",
+        university: "",
+        from: "",
+        to: "",
+      });
+      setTempProject({
+        title: "",
+        description: "",
+        techStack: "",
+        link: "",
+      })
+
+    }
   };
 
   const handlePersonalInfoChange = (e) => {
@@ -81,6 +114,8 @@ export default function ResumeForm() {
       to: "",
       description: "",
     });
+
+    addExpBtnClicked = true;
   };
 
   const removeExperience = () => {
@@ -135,15 +170,39 @@ export default function ResumeForm() {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    const formData = {
-      selected,
-      personalInfo,
-      summary,
-      skills,
-      experience,
-      education,
-      project,
-    };
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    // if(!personalInfo.fullName || !personalInfo.email || !personalInfo.phone || !personalInfo.location || !personalInfo.jobTitle){
+    //   alert("Please fill all Personal Info fields before previewing.")
+    //   return
+    // }
+    // if(!emailRegex.test(personalInfo.email)){
+    //   alert("Email is Invalid.")
+    //   return
+    // }
+    // if(selected==="modern"){
+    //   if(summary===""){
+    //     alert("Enter Summary.")
+    //     return
+    //   }
+    // }
+    // if(skills===""){
+    //   alert("Enter atleast one Skill.")
+    //   return
+    // }
+    // if(experience.length==0){
+    //   alert("Please add at least one experience entry.")
+    //   return
+    // }
+    // if(education.length==0){
+    //   alert("Please add at least one Education entry.")
+    //   return
+    // }
+    // if(selected==="modern" && project.length==0){
+    //   alert("Please add at least one Project entry.")
+    //   return
+    // }
+
 
     navigate("/preview", {
       state: {
@@ -156,7 +215,9 @@ export default function ResumeForm() {
         project,
       },
     });
+
   };
+
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg space-y-6">
@@ -171,7 +232,7 @@ export default function ResumeForm() {
           onChange={handleDropDownChange}
           className="border rounded p-2"
         >
-          <option value="">-- Choose --</option>
+          <option value="">Choose</option>
           <option value="basic">Basic</option>
           <option value="modern">Modern</option>
         </select>
@@ -215,7 +276,6 @@ export default function ResumeForm() {
                         },
                       });
                     }}
-                    required
                     className="w-full p-2 border rounded"
                   />
                 </div>
@@ -229,9 +289,18 @@ export default function ResumeForm() {
             <h2 className="text-xl font-bold text-blue-800 mb-2">Summary</h2>
             <textarea
               name="summary"
+              type="alphabet"
               value={summary}
-              onChange={handleSummaryChange}
-              required
+              rows={4}
+              onChange={(e) => {
+                const value = e.target.value.replace(/[^a-zA-Z\s.,]/g, ""); 
+                handleSummaryChange({
+                  target: {
+                    name: "summary",
+                    value,
+                  },
+                });
+              }}
               className="w-full p-3 border rounded"
               placeholder="Write a short professional summary"
             />
@@ -244,8 +313,15 @@ export default function ResumeForm() {
             type="text"
             name="skills"
             value={skills}
-            onChange={handleSkillsChange}
-            required
+            onChange={(e) => {
+              const value = e.target.value.replace(/[^a-zA-Z\s.,]/g, ""); 
+              handleSkillsChange({
+                target: {
+                  name: "skills",
+                  value,
+                },
+              });
+            }}
             className="w-full p-2 border rounded"
             placeholder="e.g., React, Node.js, SQL"
           />
@@ -254,35 +330,47 @@ export default function ResumeForm() {
         <div>
           <h2 className="text-xl font-bold text-blue-800 mb-4">Experience</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {["role", "company", "from", "to"].map((field) => (
-              <div key={field}>
-                <label className="block font-medium text-gray-700 capitalize">
-                  {field}
-                </label>
-                <input
-                  type="text"
-                  name={field}
-                  value={tempExperience[field]}
-                  onChange={(e) => {
-                    let value = e.target.value;
+  {["role", "company", "from", "to"].map((field) => (
+    <div key={field}>
+      <label className="block font-medium text-gray-700 capitalize">
+        {field}
+      </label>
 
-                    if (field === "role") {
-                      value = value.replace(/[^a-zA-Z\s]/g, ""); // Only letters and spaces
-                      handleExperienceChange({
-                        target: {
-                          name: field,
-                          value,
-                        },
-                      });
-                    } else {
-                      handleExperienceChange(e);
-                    }
-                  }}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-            ))}
-          </div>
+      {["from", "to"].includes(field) ? (
+        <input
+          type="date"
+          name={field}
+          value={tempExperience[field]}
+          onChange={handleExperienceChange}
+          className="w-full p-2 border rounded"
+        />
+      ) : (
+        <input
+          type="text"
+          name={field}
+          value={tempExperience[field]}
+          onChange={(e) => {
+            let value = e.target.value;
+
+            if (["role", "company"].includes(field)) {
+              value = value.replace(/[^a-zA-Z\s.]/g, ""); 
+              handleExperienceChange({
+                target: {
+                  name: field,
+                  value,
+                },
+              });
+            } else {
+              handleExperienceChange(e);
+            }
+          }}
+          className="w-full p-2 border rounded"
+        />
+      )}
+    </div>
+  ))}
+</div>
+
 
           {selected === "modern" && (
             <div className="mt-2">
@@ -345,7 +433,7 @@ export default function ResumeForm() {
                       }
                     } else if (["degree", "university"].includes(field)) {
                       // Allow only letters and spaces
-                      value = value.replace(/[^a-zA-Z\s]/g, "");
+                      value = value.replace(/[^a-zA-Z\s.,]/g, "");
                       handleEducationChange({
                         target: {
                           name: field,
@@ -387,43 +475,76 @@ export default function ResumeForm() {
             </button>
           </div>
         </div>
-        -{/* Projects */}
+        {/* Projects */}
         {selected === "modern" && (
           <div>
-            <h2 className="text-xl font-bold text-blue-800 mb-4">Projects</h2>
-            {["title", "description", "techStack", "link"].map((field) => (
-              <div key={field} className="mb-3">
-                <label className="block font-medium text-gray-700 capitalize">
-                  {field}
-                </label>
+          <h2 className="text-xl font-bold text-blue-800 mb-4">Projects</h2>
+          {["title", "description", "techStack", "link"].map((field) => (
+            <div key={field} className="mb-3">
+              <label className="block font-medium text-gray-700 capitalize">
+                {field}
+              </label>
+        
+              {field === "description" ? (
+                <textarea
+                  name={field}
+                  value={tempProject[field]}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^a-zA-Z0-9\s.,]/g, "");
+                    handleProjectsChange({
+                      target: {
+                        name: field,
+                        value,
+                      },
+                    });
+                  }}
+                  rows={4}
+                  className="w-full p-2 border rounded resize-none"
+                  placeholder="Describe your project..."
+                />
+              ) : (
                 <input
                   type="text"
                   name={field}
                   value={tempProject[field]}
-                  onChange={handleProjectsChange}
+                  onChange={(e) => {
+                    let value = e.target.value;
+                    
+                    if((["title", "techStack"].includes(field))){
+                      value = value.replace(/[^a-zA-Z\s.,]/g, "");
+                      handleProjectsChange({
+                        target: {
+                          name: field,
+                          value,
+                        },
+                      });
+                    }else handleProjectsChange(e)
+                  }}
                   className="w-full p-2 border rounded"
                 />
-              </div>
-            ))}
-
-            <div className="flex items-center justify-between mt-6">
-              <button
-                type="button"
-                onClick={addProject}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-md transition duration-200"
-              >
-                ➕ Add Project
-              </button>
-
-              <button
-                type="button"
-                onClick={removeProject}
-                className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-md transition duration-200"
-              >
-                🗑️ Remove Project
-              </button>
+              )}
             </div>
+          ))}
+        
+          <div className="flex items-center justify-between mt-6">
+            <button
+              type="button"
+              onClick={addProject}
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-md transition duration-200"
+            >
+              ➕ Add Project
+            </button>
+        
+            <button
+              type="button"
+              onClick={removeProject}
+              className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-md transition duration-200"
+            >
+              🗑️ Remove Project
+            </button>
           </div>
+        </div>
+        
         )}
         {/* Preview */}
         <div className="text-center">
