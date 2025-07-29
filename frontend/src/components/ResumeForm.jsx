@@ -105,8 +105,10 @@ export default function ResumeForm() {
   };
 
   const addExperience = () => {
-    setExperience((prev) => [...prev, tempExperience]);
-
+    
+    const updatedExperience = [...experience, tempExperience];
+    const sortedData = updatedExperience.sort((a, b) => new Date(b.from) - new Date(a.from));
+    setExperience(sortedData);
     setTempExperience({
       role: "",
       company: "",
@@ -114,7 +116,7 @@ export default function ResumeForm() {
       to: "",
       description: "",
     });
-
+    
     addExpBtnClicked = true;
   };
 
@@ -131,6 +133,14 @@ export default function ResumeForm() {
   };
 
   const addEducation = () => {
+    
+    if(Number(tempEducation.from) <=1980 || Number(tempEducation.to) > new Date().getFullYear()){
+      console.log("default0Flag",tempEducation.from,tempEducation.to, new Date().getFullYear() );
+      
+      alert("Please enter valid From/To Year.")
+      return
+    }
+
     setEducation((prev) => [...prev, tempEducation]);
 
     setTempEducation({
@@ -171,37 +181,42 @@ export default function ResumeForm() {
   const handleFormSubmit = (e) => {
     e.preventDefault();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^(\+92|0)?3[0-9]{9}$/;
 
-    // if(!personalInfo.fullName || !personalInfo.email || !personalInfo.phone || !personalInfo.location || !personalInfo.jobTitle){
-    //   alert("Please fill all Personal Info fields before previewing.")
-    //   return
-    // }
-    // if(!emailRegex.test(personalInfo.email)){
-    //   alert("Email is Invalid.")
-    //   return
-    // }
-    // if(selected==="modern"){
-    //   if(summary===""){
-    //     alert("Enter Summary.")
-    //     return
-    //   }
-    // }
-    // if(skills===""){
-    //   alert("Enter atleast one Skill.")
-    //   return
-    // }
-    // if(experience.length==0){
-    //   alert("Please add at least one experience entry.")
-    //   return
-    // }
-    // if(education.length==0){
-    //   alert("Please add at least one Education entry.")
-    //   return
-    // }
-    // if(selected==="modern" && project.length==0){
-    //   alert("Please add at least one Project entry.")
-    //   return
-    // }
+    if(!personalInfo.fullName || !personalInfo.email || !personalInfo.phone || !personalInfo.location){
+      alert("Please fill all Personal Info fields before previewing.")
+      return
+    }
+    if(!phoneRegex.test(personalInfo.phone)){
+      alert("Phone Number is Invalid.")
+      return
+    }
+    if(!emailRegex.test(personalInfo.email)){
+      alert("Email is Invalid.")
+      return
+    }
+    if(selected==="modern"){
+      if(summary===""){
+        alert("Enter Summary.")
+        return
+      }
+    }
+    if(skills===""){
+      alert("Enter atleast one Skill.")
+      return
+    }
+    if(experience.length==0){
+      alert("Please add at least one experience entry.")
+      return
+    }
+    if(education.length==0){
+      alert("Please add at least one Education entry.")
+      return
+    }
+    if(selected==="modern" && project.length==0){
+      alert("Please add at least one Project entry.")
+      return
+    }
 
 
     navigate("/preview", {
@@ -314,7 +329,7 @@ export default function ResumeForm() {
             name="skills"
             value={skills}
             onChange={(e) => {
-              const value = e.target.value.replace(/[^a-zA-Z\s.,]/g, ""); 
+              const value = e.target.value.replace(/[^a-zA-Z\s.,+#]/g, ""); 
               handleSkillsChange({
                 target: {
                   name: "skills",

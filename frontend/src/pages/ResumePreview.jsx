@@ -1,10 +1,14 @@
 import React, { useRef } from "react";
 import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
 // import { useReactToPrint } from "react-to-print";
 
 export default function ResumePreview() {
   const location = useLocation();
   const formData = location.state;
+    const navigate = useNavigate();
+  
 
   // const resumeRef = useRef();
 
@@ -57,9 +61,7 @@ export default function ResumePreview() {
               </p>
               <p className="text-sm text-gray-600">
                 Phone:{" "}
-                {personalInfo.phone.toString().substring(0, 4) +
-                  "-" +
-                  personalInfo.phone.toString().substring(4)}
+                {personalInfo.phone}
               </p>
               <p className="text-sm text-gray-600 capitalize">
                 Location: {personalInfo.location}
@@ -258,12 +260,19 @@ export default function ResumePreview() {
         )}
       </div>
 
-      <div className="flex justify-center my-6 no-print">
+      <div className="flex justify-center gap-5 my-6 no-print">
         <button
           onClick={downloadResume}
           className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200"
         >
           📄 Download Resume
+        </button>
+
+        <button
+          onClick={() => navigate("/")}
+          className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200"
+        >
+          Back
         </button>
       </div>
     </div>
