@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 export default function ResumeForm() {
   const [selected, setSelected] = useState("");
@@ -47,37 +48,37 @@ export default function ResumeForm() {
 
   const handleDropDownChange = (e) => {
     setSelected(e.target.value);
-    if(e.target.value!=undefined){
-      setPersonalInfo ({
-        fullName: "",
-        email: "",
-        phone: "",
-        location: "",
-        jobTitle: "",
-      });
-      setSummary("");
-      setSkills("");
-      setTempExperience({
-        role: "",
-        company: "",
-        from: "",
-        to: "",
-        description: "",
-      });
-      setTempEducation({
-        degree: "",
-        university: "",
-        from: "",
-        to: "",
-      });
-      setTempProject({
-        title: "",
-        description: "",
-        techStack: "",
-        link: "",
-      })
-
-    }
+    setPersonalInfo({
+      fullName: "",
+      email: "",
+      phone: "",
+      location: "",
+      jobTitle: "",
+    });
+    setSummary("");
+    setSkills("");
+    setExperience([]);
+    setEducation([]);
+    setProject([]);
+    setTempExperience({
+      role: "",
+      company: "",
+      from: "",
+      to: "",
+      description: "",
+    });
+    setTempEducation({
+      degree: "",
+      university: "",
+      from: "",
+      to: "",
+    });
+    setTempProject({
+      title: "",
+      description: "",
+      techStack: "",
+      link: "",
+    });
   };
 
   const handlePersonalInfoChange = (e) => {
@@ -105,9 +106,10 @@ export default function ResumeForm() {
   };
 
   const addExperience = () => {
-    
     const updatedExperience = [...experience, tempExperience];
-    const sortedData = updatedExperience.sort((a, b) => new Date(b.from) - new Date(a.from));
+    const sortedData = updatedExperience.sort(
+      (a, b) => new Date(b.from) - new Date(a.from)
+    );
     setExperience(sortedData);
     setTempExperience({
       role: "",
@@ -116,12 +118,20 @@ export default function ResumeForm() {
       to: "",
       description: "",
     });
-    
+
     addExpBtnClicked = true;
   };
 
   const removeExperience = () => {
     setExperience((prev) => prev.slice(0, -1));
+
+    if (experience.length != 0) {
+      Swal.fire({
+        title: "Message",
+        text: "Last added Experience has been removed.",
+        icon: "success",
+      });
+    }
   };
 
   const handleEducationChange = (e) => {
@@ -133,13 +143,24 @@ export default function ResumeForm() {
   };
 
   const addEducation = () => {
-    
-    if(Number(tempEducation.from) <=1980 || Number(tempEducation.to) > new Date().getFullYear()){
-      console.log("default0Flag",tempEducation.from,tempEducation.to, new Date().getFullYear() );
-      
-      alert("Please enter valid From/To Year.")
-      return
+    if (
+      Number(tempEducation.from) <= 1980 ||
+      Number(tempEducation.to) > new Date().getFullYear()
+    ) {
+      Swal.fire({
+        title: "Message",
+        text: "Please enter valid From/To Year.",
+        icon: "error",
+      });
     }
+    if (Number(tempEducation.from) > Number(tempEducation.to)) {
+      Swal.fire({
+        title: "Message",
+        text: "To Year must be greater than From Year.",
+        icon: "error",
+      });
+    }
+    // }
 
     setEducation((prev) => [...prev, tempEducation]);
 
@@ -153,6 +174,13 @@ export default function ResumeForm() {
 
   const removeEducation = () => {
     setEducation((prev) => prev.slice(0, -1));
+    if (education.length != 0) {
+      Swal.fire({
+        title: "Message",
+        text: "Last added Education has been removed.",
+        icon: "success",
+      });
+    }
   };
 
   const handleProjectsChange = (e) => {
@@ -176,63 +204,121 @@ export default function ResumeForm() {
 
   const removeProject = () => {
     setProject((prev) => prev.slice(0, -1));
+    if (project.length != 0) {
+      Swal.fire({
+        title: "Message",
+        text: "Last added Project has been removed.",
+        icon: "success",
+      });
+    }
   };
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^(\+92|0)?3[0-9]{9}$/;
-
-    if(!personalInfo.fullName || !personalInfo.email || !personalInfo.phone || !personalInfo.location){
-      alert("Please fill all Personal Info fields before previewing.")
+    console.log('personalInfo ',personalInfo);
+    
+    if (
+      !personalInfo.fullName ||
+      !personalInfo.email ||
+      !personalInfo.phone ||
+      !personalInfo.location
+    ) {
+      Swal.fire({
+        title: "Message",
+        text: "Please fill all Personal Info fields before previewing.",
+        icon: "warning",
+      });
       return
     }
-    if(!phoneRegex.test(personalInfo.phone)){
-      alert("Phone Number is Invalid.")
+    if (!emailRegex.test(personalInfo.email)) {
+      Swal.fire({
+        title: "Message",
+        text: "Email is Invalid.",
+        icon: "error",
+      });
       return
     }
-    if(!emailRegex.test(personalInfo.email)){
-      alert("Email is Invalid.")
+    if (!phoneRegex.test(personalInfo.phone)) {
+      Swal.fire({
+        title: "Message",
+        text: "Phone Number is Invalid.",
+        icon: "error",
+      });
       return
     }
-    if(selected==="modern"){
-      if(summary===""){
-        alert("Enter Summary.")
+    if (selected === "modern") {
+      if (summary === "") {
+        Swal.fire({
+          title: "Message",
+          text: "Enter Summary.",
+          icon: "warning",
+        });
         return
       }
     }
-    if(skills===""){
-      alert("Enter atleast one Skill.")
+    if (skills === "") {
+      Swal.fire({
+        title: "Message",
+        text: "Enter atleast one Skill.",
+        icon: "warning",
+      });
       return
     }
-    if(experience.length==0){
-      alert("Please add at least one experience entry.")
+    if (experience.length == 0) {
+      Swal.fire({
+        title: "Message",
+        text: "Please add at least one Experience entry.",
+        icon: "warning",
+      });
       return
     }
-    if(education.length==0){
-      alert("Please add at least one Education entry.")
+    if (education.length == 0) {
+      Swal.fire({
+        title: "Message",
+        text: "Please add at least one Education entry.",
+        icon: "warning",
+      });
       return
     }
-    if(selected==="modern" && project.length==0){
-      alert("Please add at least one Project entry.")
+    if (selected === "modern" && project.length == 0) {
+      Swal.fire({
+        title: "Message",
+        text: "Please add at least one Project entry.",
+        icon: "warning",
+      });
       return
     }
 
+    const formData = {
+      selected,
+      personalInfo,
+      summary,
+      skills,
+      experience,
+      education,
+      project,
+    };
 
-    navigate("/preview", {
-      state: {
-        selected,
-        personalInfo,
-        summary,
-        skills,
-        experience,
-        education,
-        project,
-      },
-    });
+    localStorage.setItem("resumeData", JSON.stringify(formData));
 
+    navigate("/preview");
   };
 
+  useEffect(() => {
+    const savedData = localStorage.getItem("resumeData");
+    if (savedData) {
+      const parsed = JSON.parse(savedData);
+      setSelected(parsed.selected);
+      setPersonalInfo(parsed.personalInfo);
+      setSummary(parsed.summary);
+      setSkills(parsed.skills);
+      setExperience(parsed.experience);
+      setEducation(parsed.education);
+      setProject(parsed.project);
+    }
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg space-y-6">
@@ -308,7 +394,7 @@ export default function ResumeForm() {
               value={summary}
               rows={4}
               onChange={(e) => {
-                const value = e.target.value.replace(/[^a-zA-Z\s.,]/g, ""); 
+                const value = e.target.value.replace(/[^a-zA-Z\s.,]/g, "");
                 handleSummaryChange({
                   target: {
                     name: "summary",
@@ -329,7 +415,7 @@ export default function ResumeForm() {
             name="skills"
             value={skills}
             onChange={(e) => {
-              const value = e.target.value.replace(/[^a-zA-Z\s.,+#]/g, ""); 
+              const value = e.target.value.replace(/[^a-zA-Z\s.,+#]/g, "");
               handleSkillsChange({
                 target: {
                   name: "skills",
@@ -345,47 +431,46 @@ export default function ResumeForm() {
         <div>
           <h2 className="text-xl font-bold text-blue-800 mb-4">Experience</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-  {["role", "company", "from", "to"].map((field) => (
-    <div key={field}>
-      <label className="block font-medium text-gray-700 capitalize">
-        {field}
-      </label>
+            {["role", "company", "from", "to"].map((field) => (
+              <div key={field}>
+                <label className="block font-medium text-gray-700 capitalize">
+                  {field}
+                </label>
 
-      {["from", "to"].includes(field) ? (
-        <input
-          type="date"
-          name={field}
-          value={tempExperience[field]}
-          onChange={handleExperienceChange}
-          className="w-full p-2 border rounded"
-        />
-      ) : (
-        <input
-          type="text"
-          name={field}
-          value={tempExperience[field]}
-          onChange={(e) => {
-            let value = e.target.value;
+                {["from", "to"].includes(field) ? (
+                  <input
+                    type="date"
+                    name={field}
+                    value={tempExperience[field]}
+                    onChange={handleExperienceChange}
+                    className="w-full p-2 border rounded"
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    name={field}
+                    value={tempExperience[field]}
+                    onChange={(e) => {
+                      let value = e.target.value;
 
-            if (["role", "company"].includes(field)) {
-              value = value.replace(/[^a-zA-Z\s.]/g, ""); 
-              handleExperienceChange({
-                target: {
-                  name: field,
-                  value,
-                },
-              });
-            } else {
-              handleExperienceChange(e);
-            }
-          }}
-          className="w-full p-2 border rounded"
-        />
-      )}
-    </div>
-  ))}
-</div>
-
+                      if (["role", "company"].includes(field)) {
+                        value = value.replace(/[^a-zA-Z\s.]/g, "");
+                        handleExperienceChange({
+                          target: {
+                            name: field,
+                            value,
+                          },
+                        });
+                      } else {
+                        handleExperienceChange(e);
+                      }
+                    }}
+                    className="w-full p-2 border rounded"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
 
           {selected === "modern" && (
             <div className="mt-2">
@@ -493,73 +578,75 @@ export default function ResumeForm() {
         {/* Projects */}
         {selected === "modern" && (
           <div>
-          <h2 className="text-xl font-bold text-blue-800 mb-4">Projects</h2>
-          {["title", "description", "techStack", "link"].map((field) => (
-            <div key={field} className="mb-3">
-              <label className="block font-medium text-gray-700 capitalize">
-                {field}
-              </label>
-        
-              {field === "description" ? (
-                <textarea
-                  name={field}
-                  value={tempProject[field]}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^a-zA-Z0-9\s.,]/g, "");
-                    handleProjectsChange({
-                      target: {
-                        name: field,
-                        value,
-                      },
-                    });
-                  }}
-                  rows={4}
-                  className="w-full p-2 border rounded resize-none"
-                  placeholder="Describe your project..."
-                />
-              ) : (
-                <input
-                  type="text"
-                  name={field}
-                  value={tempProject[field]}
-                  onChange={(e) => {
-                    let value = e.target.value;
-                    
-                    if((["title", "techStack"].includes(field))){
-                      value = value.replace(/[^a-zA-Z\s.,]/g, "");
+            <h2 className="text-xl font-bold text-blue-800 mb-4">Projects</h2>
+            {["title", "description", "techStack", "link"].map((field) => (
+              <div key={field} className="mb-3">
+                <label className="block font-medium text-gray-700 capitalize">
+                  {field}
+                </label>
+
+                {field === "description" ? (
+                  <textarea
+                    name={field}
+                    value={tempProject[field]}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(
+                        /[^a-zA-Z0-9\s.,]/g,
+                        ""
+                      );
                       handleProjectsChange({
                         target: {
                           name: field,
                           value,
                         },
                       });
-                    }else handleProjectsChange(e)
-                  }}
-                  className="w-full p-2 border rounded"
-                />
-              )}
+                    }}
+                    rows={4}
+                    className="w-full p-2 border rounded resize-none"
+                    placeholder="Describe your project..."
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    name={field}
+                    value={tempProject[field]}
+                    onChange={(e) => {
+                      let value = e.target.value;
+
+                      if (["title", "techStack"].includes(field)) {
+                        value = value.replace(/[^a-zA-Z\s.,]/g, "");
+                        handleProjectsChange({
+                          target: {
+                            name: field,
+                            value,
+                          },
+                        });
+                      } else handleProjectsChange(e);
+                    }}
+                    className="w-full p-2 border rounded"
+                  />
+                )}
+              </div>
+            ))}
+
+            <div className="flex items-center justify-between mt-6">
+              <button
+                type="button"
+                onClick={addProject}
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-md transition duration-200"
+              >
+                ➕ Add Project
+              </button>
+
+              <button
+                type="button"
+                onClick={removeProject}
+                className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-md transition duration-200"
+              >
+                🗑️ Remove Project
+              </button>
             </div>
-          ))}
-        
-          <div className="flex items-center justify-between mt-6">
-            <button
-              type="button"
-              onClick={addProject}
-              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-md transition duration-200"
-            >
-              ➕ Add Project
-            </button>
-        
-            <button
-              type="button"
-              onClick={removeProject}
-              className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-md transition duration-200"
-            >
-              🗑️ Remove Project
-            </button>
           </div>
-        </div>
-        
         )}
         {/* Preview */}
         <div className="text-center">

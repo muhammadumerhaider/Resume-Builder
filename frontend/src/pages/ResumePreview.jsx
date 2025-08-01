@@ -1,16 +1,21 @@
-import React, { useRef } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-// import { useReactToPrint } from "react-to-print";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 export default function ResumePreview() {
-  const location = useLocation();
-  const formData = location.state;
-    const navigate = useNavigate();
-  
+  const navigate = useNavigate();
 
-  // const resumeRef = useRef();
+  const resumeRef = useRef();
+
+  const [formData, setFormData] = useState(null);
+
+  useEffect(() => {
+    const savedData = localStorage.getItem("resumeData");
+    if (savedData) {
+      setFormData(JSON.parse(savedData));
+    }
+  }, []);
 
   if (!formData) return <div>No resume data found.</div>;
 
@@ -24,21 +29,80 @@ export default function ResumePreview() {
     selected,
   } = formData;
 
-  console.log("formData ", formData);
+  const downloadResume = async () => {
+    // if (!resumeRef.current || isGeneratingPDF) return;
 
-  // const downloadResume = useReactToPrint({
-  //   content: () => resumeRef.current,
-  //   documentTitle: `${personalInfo.fullName}_Resume`,
-  // });
+    // setIsGeneratingPDF(true);
 
-  const downloadResume = () => {
-    window.print();
+    // try {
+    // Create a temporary container for PDF generation
+    const tempContainer = document.createElement("div");
+    tempContainer.style.position = "fixed";
+    tempContainer.style.left = "-10000px";
+    tempContainer.style.top = "0";
+    document.body.appendChild(tempContainer);
+
+    // Clone and sanitize the resume content
+    const clone = resumeRef.current.cloneNode(true);
+
+    // Remove all unsupported color formats from the clone
+    const elements = clone.querySelectorAll("*");
+    elements.forEach((el) => {
+      // Check and replace inline styles
+      if (el.style.color && /oklch|color\(|lch\(|var\(/.test(el.style.color)) {
+        el.style.color = "#000000";
+      }
+      if (
+        el.style.backgroundColor &&
+        /oklch|color\(|lch\(|var\(/.test(el.style.backgroundColor)
+      ) {
+        el.style.backgroundColor = "#ffffff";
+      }
+      if (
+        el.style.borderColor &&
+        /oklch|color\(|lch\(|var\(/.test(el.style.borderColor)
+      ) {
+        el.style.borderColor = "#000000";
+      }
+
+      // Force standard font
+      el.style.fontFamily = "sans-serif";
+    });
+
+    // Add the sanitized clone to our temp container
+    tempContainer.appendChild(clone);
+
+    // Generate the PDF
+    const canvas = await html2canvas(clone, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      logging: false,
+      allowTaint: true,
+      ignoreElements: (element) => element.classList?.contains("no-print"),
+    });
+
+    // Clean up
+    document.body.removeChild(tempContainer);
+
+    // Create PDF document
+    const pdf = new jsPDF("p", "mm", "a4");
+    const imgProps = pdf.getImageProperties(canvas.toDataURL("image/png"));
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+    pdf.addImage(canvas, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save("resume.pdf");
+    // } catch (error) {
+    //   console.error('PDF generation failed:', error);
+    //   alert('Failed to generate PDF. Please try again or use the print function.');
+    // }
   };
 
   return (
     <div>
       <div
-        // ref={resumeRef}
+        ref={resumeRef}
         className="max-w-4xl mx-auto bg-white shadow-md p-8 my-8 text-gray-800 font-sans"
       >
         {selected === "basic" ? (
@@ -60,8 +124,7 @@ export default function ResumePreview() {
                 Email: {personalInfo.email}
               </p>
               <p className="text-sm text-gray-600">
-                Phone:{" "}
-                {personalInfo.phone}
+                Phone: {personalInfo.phone}
               </p>
               <p className="text-sm text-gray-600 capitalize">
                 Location: {personalInfo.location}
@@ -150,7 +213,7 @@ export default function ResumePreview() {
                 <h2 className="text-xl font-semibold text-gray-800 border-l-4 border-blue-500 pl-3 mb-4 uppercase">
                   Summary
                 </h2>
-            <p className="text-sm text-gray-600 capitalize">{summary}</p>
+                <p className="text-sm text-gray-600 capitalize">{summary}</p>
               </div>
 
               {/* Skills */}
@@ -272,7 +335,7 @@ export default function ResumePreview() {
           onClick={() => navigate("/")}
           className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200"
         >
-          Back
+          Back to Form
         </button>
       </div>
     </div>
