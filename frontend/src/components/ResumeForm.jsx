@@ -1,45 +1,45 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 export default function ResumeForm() {
-  const [selected, setSelected] = useState("");
+  const [selected, setSelected] = useState('');
   const [personalInfo, setPersonalInfo] = useState({
     // Personal Info //
-    fullName: "",
-    email: "",
-    phone: "",
-    location: "",
-    jobTitle: "",
+    fullName: '',
+    email: '',
+    phone: '',
+    location: '',
+    jobTitle: '',
   });
   // Summary //
-  const [summary, setSummary] = useState("");
+  const [summary, setSummary] = useState('');
   // Skills //
-  const [skills, setSkills] = useState("");
+  const [skills, setSkills] = useState('');
   // Experience //
   const [experience, setExperience] = useState([]);
   const [tempExperience, setTempExperience] = useState({
-    role: "",
-    company: "",
-    from: "",
-    to: "",
-    description: "",
+    role: '',
+    company: '',
+    from: '',
+    to: '',
+    description: '',
   });
   // Education //
   const [education, setEducation] = useState([]);
   const [tempEducation, setTempEducation] = useState({
-    degree: "",
-    university: "",
-    from: "",
-    to: "",
+    degree: '',
+    university: '',
+    from: '',
+    to: '',
   });
   // Projects //
   const [project, setProject] = useState([]);
   const [tempProject, setTempProject] = useState({
-    title: "",
-    description: "",
-    techStack: "",
-    link: "",
+    title: '',
+    description: '',
+    techStack: '',
+    link: '',
   });
 
   const navigate = useNavigate();
@@ -49,35 +49,35 @@ export default function ResumeForm() {
   const handleDropDownChange = (e) => {
     setSelected(e.target.value);
     setPersonalInfo({
-      fullName: "",
-      email: "",
-      phone: "",
-      location: "",
-      jobTitle: "",
+      fullName: '',
+      email: '',
+      phone: '',
+      location: '',
+      jobTitle: '',
     });
-    setSummary("");
-    setSkills("");
+    setSummary('');
+    setSkills('');
     setExperience([]);
     setEducation([]);
     setProject([]);
     setTempExperience({
-      role: "",
-      company: "",
-      from: "",
-      to: "",
-      description: "",
+      role: '',
+      company: '',
+      from: '',
+      to: '',
+      description: '',
     });
     setTempEducation({
-      degree: "",
-      university: "",
-      from: "",
-      to: "",
+      degree: '',
+      university: '',
+      from: '',
+      to: '',
     });
     setTempProject({
-      title: "",
-      description: "",
-      techStack: "",
-      link: "",
+      title: '',
+      description: '',
+      techStack: '',
+      link: '',
     });
   };
 
@@ -106,17 +106,35 @@ export default function ResumeForm() {
   };
 
   const addExperience = () => {
+    
+    let fromDate = tempExperience.from.toString().split("-").reverse().join("/");
+    let toDate = tempExperience.to.toString().split("-").reverse().join("/")
+
+    if(new Date(fromDate).getTime() > new Date(toDate).getTime()){
+      Swal.fire({
+        title: 'Message',
+        text: 'To Date must be greater than From Date.',
+        icon: 'error',
+      }).then(()=>{
+        setTempExperience((prev) => ({
+          ...prev,
+          to: "",
+        }));
+      })
+      return;
+    }
+
     const updatedExperience = [...experience, tempExperience];
     const sortedData = updatedExperience.sort(
       (a, b) => new Date(b.from) - new Date(a.from)
     );
     setExperience(sortedData);
     setTempExperience({
-      role: "",
-      company: "",
-      from: "",
-      to: "",
-      description: "",
+      role: '',
+      company: '',
+      from: '',
+      to: '',
+      description: '',
     });
 
     addExpBtnClicked = true;
@@ -127,10 +145,11 @@ export default function ResumeForm() {
 
     if (experience.length != 0) {
       Swal.fire({
-        title: "Message",
-        text: "Last added Experience has been removed.",
-        icon: "success",
+        title: 'Message',
+        text: 'Last added Experience has been removed.',
+        icon: 'success',
       });
+      return;
     }
   };
 
@@ -148,27 +167,29 @@ export default function ResumeForm() {
       Number(tempEducation.to) > new Date().getFullYear()
     ) {
       Swal.fire({
-        title: "Message",
-        text: "Please enter valid From/To Year.",
-        icon: "error",
+        title: 'Message',
+        text: 'Please enter valid From/To Year.',
+        icon: 'error',
       });
+      return;
     }
     if (Number(tempEducation.from) > Number(tempEducation.to)) {
       Swal.fire({
-        title: "Message",
-        text: "To Year must be greater than From Year.",
-        icon: "error",
+        title: 'Message',
+        text: 'To Year must be greater than From Year.',
+        icon: 'error',
       });
+      return;
     }
     // }
 
     setEducation((prev) => [...prev, tempEducation]);
 
     setTempEducation({
-      degree: "",
-      university: "",
-      from: "",
-      to: "",
+      degree: '',
+      university: '',
+      from: '',
+      to: '',
     });
   };
 
@@ -176,10 +197,11 @@ export default function ResumeForm() {
     setEducation((prev) => prev.slice(0, -1));
     if (education.length != 0) {
       Swal.fire({
-        title: "Message",
-        text: "Last added Education has been removed.",
-        icon: "success",
+        title: 'Message',
+        text: 'Last added Education has been removed.',
+        icon: 'success',
       });
+      return;
     }
   };
 
@@ -195,10 +217,10 @@ export default function ResumeForm() {
     setProject((prev) => [...prev, tempProject]);
 
     setTempProject({
-      title: "",
-      description: "",
-      techStack: "",
-      link: "",
+      title: '',
+      description: '',
+      techStack: '',
+      link: '',
     });
   };
 
@@ -206,10 +228,11 @@ export default function ResumeForm() {
     setProject((prev) => prev.slice(0, -1));
     if (project.length != 0) {
       Swal.fire({
-        title: "Message",
-        text: "Last added Project has been removed.",
-        icon: "success",
+        title: 'Message',
+        text: 'Last added Project has been removed.',
+        icon: 'success',
       });
+      return;
     }
   };
 
@@ -217,8 +240,8 @@ export default function ResumeForm() {
     e.preventDefault();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^(\+92|0)?3[0-9]{9}$/;
-    console.log('personalInfo ',personalInfo);
-    
+    console.log('personalInfo ', personalInfo);
+
     if (
       !personalInfo.fullName ||
       !personalInfo.email ||
@@ -226,69 +249,69 @@ export default function ResumeForm() {
       !personalInfo.location
     ) {
       Swal.fire({
-        title: "Message",
-        text: "Please fill all Personal Info fields before previewing.",
-        icon: "warning",
+        title: 'Message',
+        text: 'Please fill all Personal Info fields before previewing.',
+        icon: 'warning',
       });
-      return
+      return;
     }
     if (!emailRegex.test(personalInfo.email)) {
       Swal.fire({
-        title: "Message",
-        text: "Email is Invalid.",
-        icon: "error",
+        title: 'Message',
+        text: 'Email is Invalid.',
+        icon: 'error',
       });
-      return
+      return;
     }
     if (!phoneRegex.test(personalInfo.phone)) {
       Swal.fire({
-        title: "Message",
-        text: "Phone Number is Invalid.",
-        icon: "error",
+        title: 'Message',
+        text: 'Phone Number is Invalid.',
+        icon: 'error',
       });
-      return
+      return;
     }
-    if (selected === "modern") {
-      if (summary === "") {
+    if (selected === 'modern') {
+      if (summary === '') {
         Swal.fire({
-          title: "Message",
-          text: "Enter Summary.",
-          icon: "warning",
+          title: 'Message',
+          text: 'Enter Summary.',
+          icon: 'warning',
         });
-        return
+        return;
       }
     }
-    if (skills === "") {
+    if (skills === '') {
       Swal.fire({
-        title: "Message",
-        text: "Enter atleast one Skill.",
-        icon: "warning",
+        title: 'Message',
+        text: 'Enter atleast one Skill.',
+        icon: 'warning',
       });
-      return
+      return;
     }
     if (experience.length == 0) {
       Swal.fire({
-        title: "Message",
-        text: "Please add at least one Experience entry.",
-        icon: "warning",
+        title: 'Message',
+        text: 'Please add at least one Experience entry.',
+        icon: 'warning',
       });
-      return
+      return;
     }
     if (education.length == 0) {
       Swal.fire({
-        title: "Message",
-        text: "Please add at least one Education entry.",
-        icon: "warning",
+        title: 'Message',
+        text: 'Please add at least one Education entry.',
+        icon: 'warning',
       });
-      return
+      return;
     }
-    if (selected === "modern" && project.length == 0) {
+    if (selected === 'modern' && project.length == 0) {
       Swal.fire({
-        title: "Message",
-        text: "Please add at least one Project entry.",
-        icon: "warning",
+        title: 'Message',
+        text: 'Please add at least one Project entry.',
+        icon: 'warning',
       });
-      return
+      return;
     }
 
     const formData = {
@@ -301,13 +324,13 @@ export default function ResumeForm() {
       project,
     };
 
-    localStorage.setItem("resumeData", JSON.stringify(formData));
+    localStorage.setItem('resumeData', JSON.stringify(formData));
 
-    navigate("/preview");
+    navigate('/preview');
   };
 
   useEffect(() => {
-    const savedData = localStorage.getItem("resumeData");
+    const savedData = localStorage.getItem('resumeData');
     if (savedData) {
       const parsed = JSON.parse(savedData);
       setSelected(parsed.selected);
@@ -346,11 +369,11 @@ export default function ResumeForm() {
             Personal Information
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {["fullName", "email", "phone", "location", "jobTitle"].map(
+            {['fullName', 'email', 'phone', 'location', 'jobTitle'].map(
               (field) => (
                 <div key={field}>
                   <label className="block font-medium text-gray-700 capitalize">
-                    {field.replace(/([A-Z])/g, " $1")}
+                    {field.replace(/([A-Z])/g, ' $1')}
                   </label>
 
                   <input
@@ -360,14 +383,14 @@ export default function ResumeForm() {
                     onChange={(e) => {
                       let value = e.target.value;
 
-                      if (field === "phone") {
+                      if (field === 'phone') {
                         // Only digits allowed
-                        value = value.replace(/\D/g, "").slice(0, 11);
+                        value = value.replace(/\D/g, '').slice(0, 11);
                       } else if (
-                        ["fullName", "location", "jobTitle"].includes(field)
+                        ['fullName', 'location', 'jobTitle'].includes(field)
                       ) {
                         // Only letters and spaces
-                        value = value.replace(/[^a-zA-Z\s]/g, "");
+                        value = value.replace(/[^a-zA-Z\s]/g, '');
                       }
 
                       handlePersonalInfoChange({
@@ -385,7 +408,7 @@ export default function ResumeForm() {
           </div>
         </div>
         {/* Summary */}
-        {selected === "modern" && (
+        {selected === 'modern' && (
           <div>
             <h2 className="text-xl font-bold text-blue-800 mb-2">Summary</h2>
             <textarea
@@ -394,10 +417,10 @@ export default function ResumeForm() {
               value={summary}
               rows={4}
               onChange={(e) => {
-                const value = e.target.value.replace(/[^a-zA-Z\s.,]/g, "");
+                const value = e.target.value.replace(/[^a-zA-Z\s.,]/g, '');
                 handleSummaryChange({
                   target: {
-                    name: "summary",
+                    name: 'summary',
                     value,
                   },
                 });
@@ -415,10 +438,10 @@ export default function ResumeForm() {
             name="skills"
             value={skills}
             onChange={(e) => {
-              const value = e.target.value.replace(/[^a-zA-Z\s.,+#]/g, "");
+              const value = e.target.value.replace(/[^a-zA-Z\s.,+#]/g, '');
               handleSkillsChange({
                 target: {
-                  name: "skills",
+                  name: 'skills',
                   value,
                 },
               });
@@ -431,13 +454,13 @@ export default function ResumeForm() {
         <div>
           <h2 className="text-xl font-bold text-blue-800 mb-4">Experience</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {["role", "company", "from", "to"].map((field) => (
+            {['role', 'company', 'from', 'to'].map((field) => (
               <div key={field}>
                 <label className="block font-medium text-gray-700 capitalize">
                   {field}
                 </label>
 
-                {["from", "to"].includes(field) ? (
+                {['from', 'to'].includes(field) ? (
                   <input
                     type="date"
                     name={field}
@@ -453,8 +476,8 @@ export default function ResumeForm() {
                     onChange={(e) => {
                       let value = e.target.value;
 
-                      if (["role", "company"].includes(field)) {
-                        value = value.replace(/[^a-zA-Z\s.]/g, "");
+                      if (['role', 'company'].includes(field)) {
+                        value = value.replace(/[^a-zA-Z\s.]/g, '');
                         handleExperienceChange({
                           target: {
                             name: field,
@@ -472,7 +495,7 @@ export default function ResumeForm() {
             ))}
           </div>
 
-          {selected === "modern" && (
+          {selected === 'modern' && (
             <div className="mt-2">
               <label className="block font-medium text-gray-700">
                 Description
@@ -509,10 +532,10 @@ export default function ResumeForm() {
         <div>
           <h2 className="text-xl font-bold text-blue-800 mb-4">Education</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {["degree", "university", "from", "to"].map((field) => (
+            {['degree', 'university', 'from', 'to'].map((field) => (
               <div key={field}>
                 <label className="block font-medium text-gray-700 capitalize">
-                  {field.replace(/([A-Z])/g, " $1")}
+                  {field.replace(/([A-Z])/g, ' $1')}
                 </label>
                 <input
                   type="text"
@@ -521,7 +544,7 @@ export default function ResumeForm() {
                   onChange={(e) => {
                     let value = e.target.value;
 
-                    if (["from", "to"].includes(field)) {
+                    if (['from', 'to'].includes(field)) {
                       // Allow only numbers, max 4 digits
                       if (/^\d{0,4}$/.test(value)) {
                         handleEducationChange({
@@ -531,9 +554,9 @@ export default function ResumeForm() {
                           },
                         });
                       }
-                    } else if (["degree", "university"].includes(field)) {
+                    } else if (['degree', 'university'].includes(field)) {
                       // Allow only letters and spaces
-                      value = value.replace(/[^a-zA-Z\s.,]/g, "");
+                      value = value.replace(/[^a-zA-Z\s.,]/g, '');
                       handleEducationChange({
                         target: {
                           name: field,
@@ -546,11 +569,11 @@ export default function ResumeForm() {
                   }}
                   className="w-full p-2 border rounded"
                   inputMode={
-                    ["from", "to"].includes(field) ? "numeric" : undefined
+                    ['from', 'to'].includes(field) ? 'numeric' : undefined
                   }
-                  maxLength={["from", "to"].includes(field) ? 4 : undefined}
+                  maxLength={['from', 'to'].includes(field) ? 4 : undefined}
                   placeholder={
-                    ["from", "to"].includes(field) ? "e.g. 2023" : ""
+                    ['from', 'to'].includes(field) ? 'e.g. 2023' : ''
                   }
                 />
               </div>
@@ -576,23 +599,23 @@ export default function ResumeForm() {
           </div>
         </div>
         {/* Projects */}
-        {selected === "modern" && (
+        {selected === 'modern' && (
           <div>
             <h2 className="text-xl font-bold text-blue-800 mb-4">Projects</h2>
-            {["title", "description", "techStack", "link"].map((field) => (
+            {['title', 'description', 'techStack', 'link'].map((field) => (
               <div key={field} className="mb-3">
                 <label className="block font-medium text-gray-700 capitalize">
                   {field}
                 </label>
 
-                {field === "description" ? (
+                {field === 'description' ? (
                   <textarea
                     name={field}
                     value={tempProject[field]}
                     onChange={(e) => {
                       const value = e.target.value.replace(
                         /[^a-zA-Z0-9\s.,]/g,
-                        ""
+                        ''
                       );
                       handleProjectsChange({
                         target: {
@@ -613,8 +636,8 @@ export default function ResumeForm() {
                     onChange={(e) => {
                       let value = e.target.value;
 
-                      if (["title", "techStack"].includes(field)) {
-                        value = value.replace(/[^a-zA-Z\s.,]/g, "");
+                      if (['title', 'techStack'].includes(field)) {
+                        value = value.replace(/[^a-zA-Z\s.,]/g, '');
                         handleProjectsChange({
                           target: {
                             name: field,

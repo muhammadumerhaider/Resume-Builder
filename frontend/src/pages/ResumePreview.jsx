@@ -1,17 +1,13 @@
-import React, { useRef, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import React, { useRef, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function ResumePreview() {
   const navigate = useNavigate();
 
-  const resumeRef = useRef();
-
   const [formData, setFormData] = useState(null);
 
   useEffect(() => {
-    const savedData = localStorage.getItem("resumeData");
+    const savedData = localStorage.getItem('resumeData');
     if (savedData) {
       setFormData(JSON.parse(savedData));
     }
@@ -29,83 +25,16 @@ export default function ResumePreview() {
     selected,
   } = formData;
 
-  const downloadResume = async () => {
-    // if (!resumeRef.current || isGeneratingPDF) return;
-
-    // setIsGeneratingPDF(true);
-
-    // try {
-    // Create a temporary container for PDF generation
-    const tempContainer = document.createElement("div");
-    tempContainer.style.position = "fixed";
-    tempContainer.style.left = "-10000px";
-    tempContainer.style.top = "0";
-    document.body.appendChild(tempContainer);
-
-    // Clone and sanitize the resume content
-    const clone = resumeRef.current.cloneNode(true);
-
-    // Remove all unsupported color formats from the clone
-    const elements = clone.querySelectorAll("*");
-    elements.forEach((el) => {
-      // Check and replace inline styles
-      if (el.style.color && /oklch|color\(|lch\(|var\(/.test(el.style.color)) {
-        el.style.color = "#000000";
-      }
-      if (
-        el.style.backgroundColor &&
-        /oklch|color\(|lch\(|var\(/.test(el.style.backgroundColor)
-      ) {
-        el.style.backgroundColor = "#ffffff";
-      }
-      if (
-        el.style.borderColor &&
-        /oklch|color\(|lch\(|var\(/.test(el.style.borderColor)
-      ) {
-        el.style.borderColor = "#000000";
-      }
-
-      // Force standard font
-      el.style.fontFamily = "sans-serif";
-    });
-
-    // Add the sanitized clone to our temp container
-    tempContainer.appendChild(clone);
-
-    // Generate the PDF
-    const canvas = await html2canvas(clone, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-      logging: false,
-      allowTaint: true,
-      ignoreElements: (element) => element.classList?.contains("no-print"),
-    });
-
-    // Clean up
-    document.body.removeChild(tempContainer);
-
-    // Create PDF document
-    const pdf = new jsPDF("p", "mm", "a4");
-    const imgProps = pdf.getImageProperties(canvas.toDataURL("image/png"));
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-    pdf.addImage(canvas, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save("resume.pdf");
-    // } catch (error) {
-    //   console.error('PDF generation failed:', error);
-    //   alert('Failed to generate PDF. Please try again or use the print function.');
-    // }
-  };
+  const downloadResume = ()=>{
+    window.print();
+  }
 
   return (
     <div>
       <div
-        ref={resumeRef}
         className="max-w-4xl mx-auto bg-white shadow-md p-8 my-8 text-gray-800 font-sans"
       >
-        {selected === "basic" ? (
+        {selected === 'basic' ? (
           <>
             <div className="text-center border-b pb-4 mb-6">
               <h1 className="text-4xl font-bold">
@@ -134,7 +63,7 @@ export default function ResumePreview() {
             <div className="mb-6">
               <h2 className="text-xl font-semibold border-b mb-2">Skills</h2>
               <ul className="list-disc list-inside capitalize">
-                {skills.split(",").map((skill, index) => (
+                {skills.split(',').map((skill, index) => (
                   <li key={index}>{skill.trim()}</li>
                 ))}
               </ul>
@@ -197,12 +126,12 @@ export default function ResumePreview() {
                     <strong>Email:</strong> {personalInfo.email}
                   </li>
                   <li>
-                    <strong>Phone:</strong>{" "}
+                    <strong>Phone:</strong>{' '}
                     {personalInfo.phone.toString().substring(0, 4)}-
                     {personalInfo.phone.toString().substring(4)}
                   </li>
                   <li>
-                    <strong>Location:</strong>{" "}
+                    <strong>Location:</strong>{' '}
                     <span className="capitalize">{personalInfo.location}</span>
                   </li>
                 </ul>
@@ -222,7 +151,7 @@ export default function ResumePreview() {
                   Skills
                 </h2>
                 <div className="flex flex-wrap gap-2 pl-3">
-                  {skills.split(",").map((skill, index) => (
+                  {skills.split(',').map((skill, index) => (
                     <span
                       key={index}
                       className="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full capitalize"
@@ -243,7 +172,7 @@ export default function ResumePreview() {
                     <div key={index} className="mb-5 pl-3">
                       <div className="flex justify-between items-center">
                         <h3 className="font-bold text-gray-900 capitalize">
-                          {exp.role} -{" "}
+                          {exp.role} -{' '}
                           <span className="text-blue-600">{exp.company}</span>
                         </h3>
                         <span className="text-xs text-gray-500">
@@ -256,9 +185,9 @@ export default function ResumePreview() {
                           .map((line) => line.trim())
                           .filter((line) => line.length > 0)
                           .map((line, index) => {
-                            const formattedLine = line.endsWith(".")
+                            const formattedLine = line.endsWith('.')
                               ? line
-                              : line + ".";
+                              : line + '.';
                             return <li key={index}>{formattedLine}</li>;
                           })}
                       </ul>
@@ -308,9 +237,9 @@ export default function ResumePreview() {
                           .map((line) => line.trim())
                           .filter((line) => line.length > 0)
                           .map((line, index) => {
-                            const formattedLine = line.endsWith(".")
+                            const formattedLine = line.endsWith('.')
                               ? line
-                              : line + ".";
+                              : line + '.';
                             return <li key={index}>{formattedLine}</li>;
                           })}
                       </ul>
@@ -332,7 +261,7 @@ export default function ResumePreview() {
         </button>
 
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate('/')}
           className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200"
         >
           Back to Form
